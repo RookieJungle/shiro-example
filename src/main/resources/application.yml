@@ -1,0 +1,36 @@
+server:
+  port: 8000   #  配置启动端口号
+
+mybatis:
+  type-aliases-package: com.rookie.pojo   #  定义所有操作类的别名所在包
+  mapper-locations: classpath:/mapper/*.xml
+
+spring:
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource  #  配置当前要使用的数据源的操作类型
+    driver-class-name: com.mysql.cj.jdbc.Driver    #  配置mysql的驱动程序类
+    url: jdbc:mysql://47.107.126.119:3306/totoro_cloud?useUnicode=true&characterEncoding=UTF-8         #  数据库连接地址
+    username: root                                 #  数据库用户名
+    password: root                                 #  数据库密码
+    filters: stat,wall,log4j                      #  配置druid过滤器，开启监控
+    dbcp2:                                        #  进行数据库连接池的配置
+      min-idle: 5                                 #  数据库连接池的最小维持连接数
+      initial-size: 5                             #  初始化提供的连接数
+      max-total: 5                                #  最大连接数
+      max-wait-millis: 200                        #  等待连接获取的最大超时时间
+  resources:
+    static-locations: classpath:/templates/
+
+  #thymeleaf start
+  thymeleaf:
+    enabled: true
+    mode: HTML5
+    encoding: UTF-8
+    servlet:
+      content-type: text/html
+    #开发时关闭缓存,不然没法看到实时页面
+    cache: false
+    prefix: classpath:/templates/
+    suffix: .html
+
+    #thymeleaf end
