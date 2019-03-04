@@ -32,4 +32,15 @@ public class UserServiceImpl implements UserService {
         }
         return null;
     }
+
+    @Override
+    public User getUserByUsername(String username) {
+        UserExample userExample=new UserExample();
+        userExample.createCriteria().andUsernameEqualTo(username);
+        List<User> users = userMapper.selectByExample(userExample);
+        if(CollectionUtils.isNotEmpty(users)){
+            return users.get(0);
+        }
+        return null;
+    }
 }
