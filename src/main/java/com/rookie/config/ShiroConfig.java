@@ -2,7 +2,6 @@ package com.rookie.config;
 
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.shiro.authc.credential.CredentialsMatcher;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.spring.LifecycleBeanPostProcessor;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
@@ -49,15 +48,15 @@ public class ShiroConfig {
     }
     //配置自定义的权限登录器
     @Bean
-    public ShiroRealm shiroRealm(CredentialsMatcher matcher) {
+    public ShiroRealm shiroRealm(org.apache.shiro.authc.credential.CredentialsMatcher matcher) {
         ShiroRealm authRealm=new ShiroRealm();
         authRealm.setCredentialsMatcher(matcher);
         return authRealm;
     }
     //配置自定义的密码比较器
     @Bean
-    public CredentialsMatcher credentialsMatcher() {
-        CredentialsMatcher simpleCredentialsMatcher=new CustomCredentialsMatcher();
+    public org.apache.shiro.authc.credential.CredentialsMatcher credentialsMatcher() {
+        org.apache.shiro.authc.credential.CredentialsMatcher simpleCredentialsMatcher=new CredentialsMatcher();
         return simpleCredentialsMatcher;
     }
 

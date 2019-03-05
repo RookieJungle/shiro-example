@@ -5,10 +5,10 @@ import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.authc.credential.SimpleCredentialsMatcher;
-import org.apache.shiro.crypto.hash.Sha384Hash;
+import org.apache.shiro.crypto.hash.Sha256Hash;
 
 @Slf4j
-public class CustomCredentialsMatcher extends SimpleCredentialsMatcher {
+public class CredentialsMatcher extends SimpleCredentialsMatcher {
 
     @Override
     public boolean doCredentialsMatch(AuthenticationToken authenticationToken, AuthenticationInfo info) {
@@ -21,10 +21,12 @@ public class CustomCredentialsMatcher extends SimpleCredentialsMatcher {
     }
 
     //将传进来密码加密方法
-    private String encrypt(String data) {
-        String sha384Hex = new Sha384Hash(data).toBase64();
-        log.info(data + ":" + sha384Hex);
-        return sha384Hex;
+    private String encrypt(String data,String salt) {
+
+        Sha256Hash sha256Hash=new Sha256Hash(data,salt,1024);
+        String sha256HashString = sha256Hash.fromBase64String(data).toString();
+        log.info(data + ":" + sha256HashString);
+        return sha256HashString;
     }
 
 }

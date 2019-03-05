@@ -2,16 +2,27 @@ package com.rookie.config;
 
 import com.rookie.pojo.User;
 import com.rookie.service.UserService;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authc.*;
+import org.apache.shiro.authc.credential.CredentialsMatcher;
+import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
+import org.apache.shiro.crypto.hash.Md5Hash;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.ByteSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 
 public class ShiroRealm extends AuthorizingRealm {
+
+    private static ApplicationContext applicationContext;
 
     //用于用户查询
     @Autowired
@@ -19,37 +30,55 @@ public class ShiroRealm extends AuthorizingRealm {
 
     //角色权限和对应权限添加
     @Override
-    protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
-        //获取登录用户名
-        User user= (User) principalCollection.getPrimaryPrincipal();
-        //添加角色和权限
-        SimpleAuthorizationInfo simpleAuthorizationInfo = new SimpleAuthorizationInfo();
-       /* for (Role role:user.getRoles()) {
-            //添加角色
-            simpleAuthorizationInfo.addRole(role.getRoleName());
-            for (Permission permission:role.getPermissions()) {
-                //添加权限
-                simpleAuthorizationInfo.addStringPermission(permission.getPermission());
+    protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
+        UserService userService=applicationContext.getBean(UserService.class);
+        User user = (User) principals.getPrimaryPrincipal();
+        List<Long> roleList = null;
+
+        Set<String> permissionSet = new HashSet<>();
+        Set<String> roleNameSet = new HashSet<>();
+
+        for (Long roleId : roleList) {
+            List<String> permissions = userService.findPermissionsByRoleId(roleId);
+            if (permissions != null) {
+                for (String permission : permissions) {
+                    if (StringUtils.isNotEmpty(permission)) {
+                        permissionSet.add(permission);
+                    }
+                }
             }
-        }*/
-        return simpleAuthorizationInfo;
+            String roleName = userService.findRoleNameByRoleId(roleId);
+            roleNameSet.add(roleName);
+        }
+
+        SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
+        info.addStringPermissions(permissionSet);
+        info.addRoles(roleNameSet);
+        return info;
     }
 
     //用户认证
     @Override
-    protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) throws AuthenticationException {
-        UsernamePasswordToken usernamePasswordToken=(UsernamePasswordToken) authenticationToken;
+    protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authcToken) throws AuthenticationException {
+        UsernamePasswordToken token = (UsernamePasswordToken) authcToken;
 
-        String username = usernamePasswordToken.getUsername();
-        //获取用户信息
-        User user = userService.getUserByUsername(username);
-        if (user == null) {
-            return null;
-        } else {
-            ByteSource byteSource = ByteSource.Util.bytes(user.getUsername());
-            //这里验证authenticationToken和simpleAuthenticationInfo的信息
-            SimpleAuthenticationInfo simpleAuthenticationInfo = new SimpleAuthenticationInfo(user, user.getPassword(), byteSource, getName());
-            return simpleAuthenticationInfo;
-        }
+        UserService userService=applicationContext.getBean(UserService.class);
+        User user = userService.getUserByUsername(token.getUsername());
+        String credentials = user.getPassword();
+        // 密码加盐处理
+        String source = null;
+        ByteSource credentialsSalt = new Md5Hash(source);
+        return new SimpleAuthenticationInfo(user, credentials, credentialsSalt, super.getName());
+    }
+
+    /**
+     * 设置认证加密方式
+     */
+    @Override
+    public void setCredentialsMatcher(CredentialsMatcher credentialsMatcher) {
+        HashedCredentialsMatcher md5CredentialsMatcher = new HashedCredentialsMatcher();
+        md5CredentialsMatcher.setHashAlgorithmName("SHA-256");
+        md5CredentialsMatcher.setHashIterations(1024);
+        super.setCredentialsMatcher(md5CredentialsMatcher);
     }
 }
