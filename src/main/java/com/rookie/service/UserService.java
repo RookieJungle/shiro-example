@@ -1,14 +1,20 @@
 package com.rookie.service;
 
-import com.rookie.pojo.User;
+import com.rookie.pojo.SysRole;
+import com.rookie.pojo.SysUser;
 
 import java.util.List;
+import java.util.Set;
 
 public interface UserService {
 
-    User getUserByUsername(String username);
+    public List<SysUser> getUserList();
 
-    List<String> findPermissionsByRoleId(Long roleId);
+    SysUser getUserByUsername(String username);
 
-    String findRoleNameByRoleId(Long roleId);
+    Set<String> findPermissionsByRoleId(int roleId);
+
+    String findRoleNameByRoleId(int roleId);
+
+    SysRole getRoleByUserId(int id);
 }

@@ -1,13 +1,12 @@
 package com.rookie.pojo;
 
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  * sys_user
  * @author 
  */
-public class User implements Serializable {
+public class SysUser implements Serializable {
     /**
      * 用户id
      */
@@ -17,6 +16,11 @@ public class User implements Serializable {
      * 用户名称
      */
     private String username;
+
+    /**
+     * 盐值
+     */
+    private String salt;
 
     /**
      * 手机号
@@ -48,21 +52,6 @@ public class User implements Serializable {
      */
     private String remark;
 
-    /**
-     * 操作者
-     */
-    private String operator;
-
-    /**
-     * 最后一次更新时间
-     */
-    private Date operateTime;
-
-    /**
-     * 最后一次更新者的ip地址
-     */
-    private String operateIp;
-
     private static final long serialVersionUID = 1L;
 
     public Integer getId() {
@@ -79,6 +68,14 @@ public class User implements Serializable {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String getSalt() {
+        return salt;
+    }
+
+    public void setSalt(String salt) {
+        this.salt = salt;
     }
 
     public String getTelephone() {
@@ -127,29 +124,5 @@ public class User implements Serializable {
 
     public void setRemark(String remark) {
         this.remark = remark;
-    }
-
-    public String getOperator() {
-        return operator;
-    }
-
-    public void setOperator(String operator) {
-        this.operator = operator;
-    }
-
-    public Date getOperateTime() {
-        return operateTime;
-    }
-
-    public void setOperateTime(Date operateTime) {
-        this.operateTime = operateTime;
-    }
-
-    public String getOperateIp() {
-        return operateIp;
-    }
-
-    public void setOperateIp(String operateIp) {
-        this.operateIp = operateIp;
     }
 }
